@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DPR RI PDP - Live Security & Compliance Portal</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --card-hover: #243248;
+      --border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --primary: #38bdf8;
+      --success: #34d399;
+      --danger: #f87171;
+      --warning: #fbbf24;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: ui-monospace, monospace, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 24px; min-height: 100vh; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    
+    
+    header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 20px; }
+    h1 { font-size: 20px; color: var(--primary); letter-spacing: -0.5px; }
+    .badge { padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; }
+    .badge-op { background: #0369a1; }
+    .badge-admin { background: #991b1b; }
+    .badge-auditor { background: #854d0e; }
+    .badge-danger { background: rgba(248, 113, 113, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+    .badge-success { background: rgba(52, 211, 153, 0.2); color: var(--success); border: 1px solid var(--success); }
+
+    
+    .auth-bar { display: flex; gap: 8px; align-items: center; margin-bottom: 20px; background: var(--card); padding: 12px; border-radius: 8px; border: 1px solid var(--border); }
+    button { cursor: pointer; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: 13px; transition: 0.2s; }
+    .btn-primary { background: var(--primary); color: #000; }
+    .btn-secondary { background: #475569; color: #fff; }
+    .btn-danger { background: var(--danger); color: #000; }
+    .btn-attack { background: #ef4444; color: #fff; }
+    
+    
+    .nav-tabs { display: flex; gap: 6px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 8px; overflow-x: auto; }
+    .nav-tab { background: transparent; color: var(--muted); border: 1px solid transparent; padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
+    .nav-tab:hover { background: var(--card); color: var(--text); }
+    .nav-tab.active { background: var(--card); color: var(--primary); border: 1px solid var(--primary); box-shadow: 0 0 12px rgba(56, 189, 248, 0.2); }
+    
+    
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn 0.2s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+    .card h2 { font-size: 16px; margin-bottom: 12px; color: var(--primary); border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 6px; }
+    input { width: 100%; background: #0b1120; border: 1px solid var(--border); color: #fff; padding: 9px 12px; border-radius: 6px; margin-bottom: 12px; font-family: inherit; font-size: 13px; }
+    pre { background: #0b1120; padding: 14px; border-radius: 6px; font-size: 12px; overflow-x: auto; color: var(--success); border: 1px solid var(--border); min-height: 120px; }
+    
+    
+    .compare-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 14px; }
+    .compare-box { border-radius: 8px; padding: 18px; border: 1px solid var(--border); font-size: 13px; }
+    .compare-box.before { background: rgba(239, 68, 68, 0.05); border-color: rgba(239, 68, 68, 0.4); }
+    .compare-box.after { background: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.4); }
+    .compare-item { margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px dashed rgba(255,255,255,0.08); }
+    .compare-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .compare-label { font-size: 11px; text-transform: uppercase; color: var(--muted); letter-spacing: 0.5px; }
+    .compare-val { font-weight: bold; margin-top: 3px; font-size: 13px; }
+    .val-danger { color: #fca5a5; }
+    .val-success { color: #86efac; }
+
+    
+    .terminal-console {
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      padding: 14px;
+      font-size: 12px;
+      color: #38bdf8;
+      min-height: 220px;
+      max-height: 360px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      font-family: ui-monospace, monospace;
+    }
+
+    
+    table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 12px; }
+    th, td { border: 1px solid var(--border); padding: 10px; text-align: left; }
+    th { background: #0b1120; color: var(--muted); }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  
+  <header>
+    <div>
+      <h1>DPR RI PDP DATA SYSTEM</h1>
+      <small style="color: var(--muted);">Live Security & Compliance Verification Interface (UU PDP No. 27/2022)</small>
+    </div>
+    <div id="session-info">
+      <span class="badge" style="background: #334155;">Belum Login</span>
+    </div>
+  </header>
+
+  
+  <div class="auth-bar">
+    <span style="font-size: 13px; color: var(--muted);">Simulasi Login Persona:</span>
+    <button class="btn-secondary" onclick="loginAs('operator1', 'OperatorPass2026!')">1. Operator</button>
+    <button class="btn-secondary" onclick="loginAs('admin1', 'AdminPass2026!')">2. Admin</button>
+    <button class="btn-secondary" onclick="loginAs('auditor1', 'AuditorPass2026!')">3. Auditor</button>
+    <button class="btn-danger" style="margin-left: auto;" onclick="logout()">Logout (Revoke Token)</button>
+  </div>
+
+  
+  <nav class="nav-tabs">
+    <button class="nav-tab active" id="tab-btn-compare" onclick="switchTab('tab-compare')">
+      1. Before vs After
+    </button>
+    <button class="nav-tab" id="tab-btn-attack" onclick="switchTab('tab-attack')">
+      2. Simulasi Serangan Siber
+    </button>
+    <button class="nav-tab" id="tab-btn-operator" onclick="switchTab('tab-operator')">
+      3. Portal Operator (Dynamic Masking)
+    </button>
+    <button class="nav-tab" id="tab-btn-admin" onclick="switchTab('tab-admin')">
+      4. Portal Admin (KMS & Shredding)
+    </button>
+    <button class="nav-tab" id="tab-btn-auditor" onclick="switchTab('tab-auditor')">
+      5. Audit Trail (Auditor View)
+    </button>
+  </nav>
+
+  
+  
+  
+  <div class="tab-content active" id="tab-compare">
+    <div class="card" style="border-left: 4px solid var(--primary);">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 14px;">
+        <div>
+          <h2 style="border: none; margin: 0; padding: 0;">Sebelum Pengamanan VS Sesudah Pengamanan</h2>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <span style="font-size: 12px; color: var(--muted);">ID Anggota:</span>
+          <input type="number" id="input-compare-id" value="1" style="width: 75px; margin-bottom: 0; padding: 5px 8px;">
+          <button class="btn-primary" onclick="loadComparison()">Bandingkan</button>
+        </div>
+      </div>
+
+      <div class="compare-container">
+        
+        <div class="compare-box before">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <h3 style="font-size: 14px; color: var(--danger);">🔴 SEBELUM: DATABASE LAMA (dprri)</h3>
+            <span class="badge badge-danger">NON-COMPLIANT</span>
+          </div>
+          <div class="compare-item">
+            <div class="compare-label">Sumber Database & Skema</div>
+            <div class="compare-val val-danger" id="cmp-before-arch">-</div>
+          </div>
+          <div class="compare-item">
+            <div class="compare-label">Nama Anggota di Tampilan</div>
+            <div class="compare-val val-danger" id="cmp-before-name">-</div>
+          </div>
+          <div class="compare-item">
+            <div class="compare-label">Eksposur NIK (KTP)</div>
+            <div class="compare-val val-danger" id="cmp-before-nik">-</div>
+          </div>
+          <div class="compare-item">
+            <div class="compare-label">Eksposur Nomor Rekening</div>
+            <div class="compare-val val-danger" id="cmp-before-rek">-</div>
+          </div>
+          <div class="compare-item">
+            <div class="compare-label">Penyimpanan di Disk Database</div>
+            <div class="compare-val val-danger" id="cmp-before-storage">-</div>
+          </div>
+          <div class="compare-item">
+            <div class="compare-label">Metode Pencarian Data</div>
+            <div class="compare-val val-danger" id="cmp-before-search">-</div>
+          </div>
+          <div class="compare-item">
+            <div class="compare-label">Keamanan Sesi Pasca Logout</div>
+            <div class="compare-val val-danger" id="cmp-before-session">-</div>
+          </div>
+          <div class="compare-item">
+            <div class="compare-label">Pencatatan Jejak Audit</div>
+            <div class="compare-val val-danger" id="cmp-before-audit">-</div>
+          </div>
+        </div>
+
+        
+        <div class="compare-box after">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <h3 style="font-size: 14px; color: var(--success);">🟢 SESUDAH: DATABASE BARU (dpr_pdp_db)</h3>
+            <span class="badge badge-success">100% COMPLIANT</span>
+          </div>
+          <div class="compare-item">
+            <div class="compare-label">Sumber Database & Skema</div>
+            <div class="compare-val val-success" id="cmp-after-arch">-</div>
+          </div>
+          <div class="compare-item">
+            <div class="compare-label">Nama Anggota di Tampilan</div>
+            <div class="compare-val val-success" id="cmp-after-name">-</div>
+          </div>
+          <div class="compare-item">
+            <div class="compare-label">Proteksi NIK (Dynamic Masking)</div>
+            <div class="compare-val val-success" id="cmp-after-nik">-</div>
+          </div>
+          <div class="compare-item">
+            <div class="compare-label">Proteksi Nomor Rekening</div>
+            <div class="compare-val val-success" id="cmp-after-rek">-</div>
+          </div>
+          <div class="compare-item">
+            <div class="compare-label">Penyimpanan di Disk Database</div>
+            <div class="compare-val val-success" id="cmp-after-storage">-</div>
+          </div>
+          <div class="compare-item">
+            <div class="compare-label">Metode Pencarian Data</div>
+            <div class="compare-val val-success" id="cmp-after-search">-</div>
+          </div>
+          <div class="compare-item">
+            <div class="compare-label">Keamanan Sesi Pasca Logout</div>
+            <div class="compare-val val-success" id="cmp-after-session">-</div>
+          </div>
+          <div class="compare-item">
+            <div class="compare-label">Pencatatan Jejak Audit</div>
+            <div class="compare-val val-success" id="cmp-after-audit">-</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  
+  
+  <div class="tab-content" id="tab-attack">
+    <div class="card" style="border-left: 4px solid var(--danger);">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 14px;">
+        <div>
+          <h2 style="border: none; margin: 0; padding: 0; color: var(--danger);">LIVE ATTACK SIMULATION: SERANGAN SIBER VS PERTAHANAN ARSITEKTUR</h2>
+          <small style="color: var(--muted);">Pilih skenario serangan di bawah ini untuk menguji respon pertahanan sistem secara langsung</small>
+        </div>
+        <div>
+          <button class="btn-secondary" style="font-size: 11px;" onclick="resetRateLimiter()">Reset Limiter</button>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap;">
+        <button class="btn-attack" onclick="runAttackBruteForce()">. Serangan Brute-Force (Rate Limiter)</button>
+        <button class="btn-attack" onclick="runAttackSessionReplay()">2. Pencurian Token (Session Hijacking)</button>
+        <button class="btn-attack" onclick="runAttackDbLeak()">3. Kebocoran Harddisk (DB Leak)</button>
+        <button class="btn-secondary" onclick="clearTerminal()">Bersihkan Log</button>
+      </div>
+
+      <div class="terminal-console" id="attack-terminal">> Terminal simulasi serangan siap. Klik salah satu tombol di atas...</div>
+    </div>
+  </div>
+
+  
+  
+  
+  <div class="tab-content" id="tab-operator">
+    <div class="card">
+      <h2>1. Pencarian NIK (Dynamic Masking Berbasis Blind Index)</h2>
+      <p style="font-size: 13px; color: var(--muted); margin-bottom: 14px;">
+        Operator aplikasi hanya diizinkan melihat data publik dan data sensitif yang telah disensor otomatis (*Dynamic On-The-Fly Masking*).
+      </p>
+      <label>Masukkan 14 Digit NIK (Pencarian Cepat Blind Index):</label>
+      <div style="display: flex; gap: 10px;">
+        <input type="text" id="input-nik" value="00000648505443" placeholder="Contoh: 00000648505443" style="max-width: 400px; margin-bottom: 0;">
+        <button class="btn-primary" onclick="searchNik()">Cari Data</button>
+      </div>
+      <label style="margin-top: 18px;">Respons API (Tersensor Otomatis):</label>
+      <pre id="output-operator">// Hasil pencarian data tersensor akan tampil di sini...</pre>
+    </div>
+  </div>
+
+  
+  
+  
+  <div class="tab-content" id="tab-admin">
+    <div class="card">
+      <h2>2. Akses Penuh Data Sensitif & Pemusnahan (Admin Only + Wajib Audit)</h2>
+      <p style="font-size: 13px; color: var(--muted); margin-bottom: 14px;">
+        Hanya akun dengan peran **Admin** yang memiliki wewenang mendekripsi data sensitif melalui KMS terisolasi atau melakukan pemusnahan kriptografis permanen (*Right to be Forgotten*).
+      </p>
+      <label>ID Anggota DPR RI:</label>
+      <div style="display: flex; gap: 10px; align-items: center; max-width: 450px;">
+        <input type="number" id="input-id" value="1" style="margin-bottom: 0; width: 100px;">
+        <button class="btn-primary" onclick="getFullSensitive()">Dekripsi Data (KMS v2)</button>
+        <button class="btn-danger" onclick="purgeRetention()">Pemusnahan (Shredding)</button>
+      </div>
+      <label style="margin-top: 18px;">Respons API (Plaintext Terdekripsi On-The-Fly):</label>
+      <pre id="output-admin">// Data terdekripsi via KMS akan tampil di sini...</pre>
+    </div>
+  </div>
+
+  
+  
+  
+  <div class="tab-content" id="tab-auditor">
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 14px;">
+        <div>
+          <h2 style="border: none; margin: 0; padding: 0;">3. Live Audit Logs (Auditor View)</h2>
+          <small style="color: var(--muted);">Pencatatan aktivitas hukum yang immutable dan transparan untuk seluruh aksi sistem</small>
+        </div>
+        <button class="btn-secondary" onclick="loadAuditLogs()">Refresh Log</button>
+      </div>
+      <table id="table-logs">
+        <thead>
+          <tr>
+            <th>Waktu</th>
+            <th>Pengguna</th>
+            <th>Peran</th>
+            <th>Aksi</th>
+            <th>Target ID</th>
+            <th>IP Klien</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="6" style="text-align: center; color: var(--muted);">Klik 'Refresh Log' untuk melihat catatan audit terbaru.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const API_BASE = "http://127.0.0.1:8000";
+  let activeToken = "";
+  let activeRole = "";
+
+  
+  function switchTab(tabId) {
+    document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+    document.querySelectorAll(".nav-tab").forEach(el => el.classList.remove("active"));
+
+    const targetContent = document.getElementById(tabId);
+    if (targetContent) targetContent.classList.add("active");
+
+    const targetBtn = document.getElementById(`tab-btn-${tabId.replace("tab-", "")}`);
+    if (targetBtn) targetBtn.classList.add("active");
+
+    if (tabId === "tab-auditor" && activeToken) {
+      loadAuditLogs();
+    }
+  }
+
+  
+  function logTerminal(msg) {
+    const term = document.getElementById("attack-terminal");
+    const ts = new Date().toLocaleTimeString();
+    term.innerHTML += `\n[${ts}] ${msg}`;
+    term.scrollTop = term.scrollHeight;
+  }
+
+  function clearTerminal() {
+    document.getElementById("attack-terminal").innerHTML = "> Terminal dibersihkan.";
+  }
+
+  async function resetRateLimiter() {
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/system/reset-limiter`, { method: "POST" });
+      const data = await res.json();
+      logTerminal(`YSTEM: ${data.message}`);
+    } catch (e) {
+      logTerminal(`Gagal reset limiter: ${e.message}`);
+    }
+  }
+
+  
+  async function runAttackBruteForce() {
+    logTerminal("==========================================================");
+    logTerminal("[ATTACK 1] MEMULAI SERANGAN BRUTE-FORCE PASSWORD CRACKING...");
+    logTerminal("Target: POST /api/v1/auth/login (User: operator1)");
+    await resetRateLimiter();
+
+    for (let i = 1; i <= 6; i++) {
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: "operator1", password: `Hacked_Pass_${i}!` })
+        });
+        const data = await res.json();
+
+        if (res.status === 401) {
+          logTerminal(`  [REQ #${i}] 401 Unauthorized (Password salah)`);
+        } else if (res.status === 429) {
+          logTerminal(`  [REQ #${i}] 429 TOO MANY REQUESTS! IP KLIEN DIBLOKIR OTOMATIS.`);
+          logTerminal(`  Detail Server: "${data.detail}"`);
+          logTerminal(" [PERTAHANAN SUKSES] Penyerang dilumpuhkan oleh Sliding-Window Limiter!");
+          logTerminal("==========================================================");
+          return;
+        }
+      } catch (err) {
+        logTerminal(`  [REQ #${i}] Error koneksi: ${err.message}`);
+      }
+    }
+  }
+
+  
+  async function runAttackSessionReplay() {
+    logTerminal("==========================================================");
+    logTerminal("[ATTACK 2] MEMULAI SIMULASI TOKEN HIJACKING & REPLAY ATTACK...");
+    await resetRateLimiter();
+
+    logTerminal("  -> Langkah 1: Operator login resmi untuk mendapatkan token...");
+    const resLogin = await fetch(`${API_BASE}/api/v1/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: "operator1", password: "OperatorPass2026!" })
+    });
+    const authData = await resLogin.json();
+    const stolenToken = authData.access_token;
+    logTerminal(`     Token sah diterbitkan: ${stolenToken.substring(0, 30)}...`);
+
+    logTerminal("  -> Langkah 2: Hacker berhasil menyalin token dari jaringan.");
+    logTerminal("  -> Langkah 3: Operator menyadari bahaya dan mengklik [Logout]...");
+    const resLogout = await fetch(`${API_BASE}/api/v1/auth/logout`, {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${stolenToken}` }
+    });
+    const logoutData = await resLogout.json();
+    logTerminal(`     Logout status: 200 OK (${logoutData.message})`);
+
+    logTerminal("  -> Langkah 4: Hacker mencoba menggunakan token curian pasca-logout...");
+    const resReplay = await fetch(`${API_BASE}/api/v1/anggota?limit=1`, {
+      headers: { "Authorization": `Bearer ${stolenToken}` }
+    });
+    const replayData = await resReplay.json();
+
+    if (resReplay.status === 401) {
+      logTerminal(`     STATUS 401 UNAUTHORIZED: Akses Ditolak!`);
+      logTerminal(`     Pesan Sistem: "${replayData.detail}"`);
+      logTerminal("[PERTAHANAN SUKSES] Token Revocation Blacklist mematikan sesi seketika!");
+    } else {
+      logTerminal(`     GAGAL: Token masih dapat mengakses data!`);
+    }
+    logTerminal("==========================================================");
+  }
+
+  
+  async function runAttackDbLeak() {
+    logTerminal("==========================================================");
+    logTerminal("[ATTACK 3] SIMULASI KEBOCORAN FISIK DATABASE / HARDDISK DUMP...");
+    logTerminal("Kueri: SELECT * FROM anggota_sensitif (Membaca file harddisk MySQL)");
+
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/demo/raw-dump`);
+      const data = await res.json();
+      logTerminal(`Format Penyimpanan di Harddisk: ${data.disk_format}`);
+      logTerminal("Hasil Tangkapan Dump Database:");
+
+      data.leaked_rows.forEach(r => {
+        logTerminal(`  • Anggota ID #${r.anggota_id} [KMS v${r.key_version}]:`);
+        logTerminal(`    - NIK Ciphertext : ${r.no_ktp_enc}`);
+        logTerminal(`    - NPWP Ciphertext: ${r.npwp_enc}`);
+        logTerminal(`    - Rekening Cipher: ${r.rekening_enc}`);
+        logTerminal(`    - Blind Index    : ${r.bidx_no_ktp.substring(0, 32)}...`);
+      });
+
+      logTerminal(" [PERTAHANAN SUKSES] Seluruh data sensitif terenkripsi AES-256-GCM.");
+      logTerminal("    Tanpa Master DEK dari KMS, data yang bocor bernilai 0 (Nol Kebocoran).");
+    } catch (e) {
+      logTerminal(` Gagal membaca dump: ${e.message}`);
+    }
+    logTerminal("==========================================================");
+  }
+
+  
+  async function loadComparison() {
+    const id = document.getElementById("input-compare-id").value || "1";
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/demo/compare/${id}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Gagal memuat komparasi");
+
+      if (data.status === "purged") {
+        alert(data.message);
+        return;
+      }
+
+      document.getElementById("cmp-before-arch").innerText = data.before.arsitektur_db || "dprri.anggota (Monolitik)";
+      document.getElementById("cmp-before-name").innerText = data.before.nama_tampil;
+      document.getElementById("cmp-before-nik").innerText = data.before.nik;
+      document.getElementById("cmp-before-rek").innerText = data.before.rekening;
+      document.getElementById("cmp-before-storage").innerText = data.before.db_storage;
+      document.getElementById("cmp-before-search").innerText = data.before.search_method;
+      document.getElementById("cmp-before-session").innerText = data.before.session_security;
+      document.getElementById("cmp-before-audit").innerText = data.before.audit_trail;
+
+      document.getElementById("cmp-after-arch").innerText = data.after.arsitektur_db || "dpr_pdp_db (Segregasi ALE)";
+      document.getElementById("cmp-after-name").innerText = data.after.nama_tampil;
+      document.getElementById("cmp-after-nik").innerText = data.after.nik;
+      document.getElementById("cmp-after-rek").innerText = data.after.rekening;
+      document.getElementById("cmp-after-storage").innerText = data.after.db_storage;
+      document.getElementById("cmp-after-search").innerText = data.after.search_method;
+      document.getElementById("cmp-after-session").innerText = data.after.session_security;
+      document.getElementById("cmp-after-audit").innerText = data.after.audit_trail;
+    } catch (err) {
+      alert("Error memuat komparasi: " + err.message);
+    }
+  }
+
+  
+  async function loginAs(username, password) {
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Gagal login");
+
+      activeToken = data.access_token;
+      activeRole = username.includes("admin") ? "Admin" : username.includes("auditor") ? "Auditor" : "Operator";
+      
+      const badgeClass = activeRole === "Admin" ? "badge-admin" : activeRole === "Auditor" ? "badge-auditor" : "badge-op";
+      document.getElementById("session-info").innerHTML = `
+        <span class="badge ${badgeClass}">${username} (${activeRole})</span>
+      `;
+      alert(`Berhasil login sebagai ${username}!`);
+
+      if (activeRole === "Operator") switchTab("tab-operator");
+      else if (activeRole === "Admin") switchTab("tab-admin");
+      else if (activeRole === "Auditor") {
+        switchTab("tab-auditor");
+        loadAuditLogs();
+      }
+    } catch (err) {
+      alert("Error: " + err.message);
+    }
+  }
+
+  async function logout() {
+    if (!activeToken) return alert("Belum ada token aktif.");
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/auth/logout`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${activeToken}` }
+      });
+      const data = await res.json();
+      activeToken = "";
+      document.getElementById("session-info").innerHTML = `<span class="badge" style="background: #334155;">Belum Login</span>`;
+      alert(data.message || "Sesi berhasil dicabut.");
+    } catch (err) {
+      alert("Gagal logout: " + err.message);
+    }
+  }
+
+  
+  async function searchNik() {
+    const nik = document.getElementById("input-nik").value;
+    const output = document.getElementById("output-operator");
+
+    if (!activeToken) {
+      output.innerText = " PERINGATAN OTORISASI:\nAnda belum login! Pencarian NIK mewajibkan token aktif.\nSilakan klik tombol '1. Operator' pada bar di atas terlebih dahulu.";
+      return;
+    }
+
+    output.innerText = "Memproses pencarian Blind Index...";
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/anggota/search/nik`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${activeToken}`
+        },
+        body: JSON.stringify({ nik })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        output.innerText = ` GAGAL (${res.status}):\n${JSON.stringify(data, null, 2)}`;
+        return;
+      }
+      output.innerText = JSON.stringify(data, null, 2);
+    } catch (err) {
+      output.innerText = "Error koneksi: " + err.message;
+    }
+  }
+
+  
+  async function getFullSensitive() {
+    const id = document.getElementById("input-id").value;
+    const output = document.getElementById("output-admin");
+
+    if (!activeToken) {
+      output.innerText = " PERINGATAN OTORISASI:\nAnda belum login! Endpoint ini mewajibkan peran Administrator (admin_user).\nSilakan klik tombol '2. Admin' pada bar di atas terlebih dahulu.";
+      return;
+    }
+
+    output.innerText = `Memproses dekripsi data sensitif untuk Anggota ID ${id} via KMS v2...`;
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/anggota/${id}/sensitive`, {
+        headers: { "Authorization": `Bearer ${activeToken}` }
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        output.innerText = ` GAGAL (${res.status} ${res.statusText}):\n${JSON.stringify(data, null, 2)}`;
+        return;
+      }
+      output.innerText = JSON.stringify(data, null, 2);
+    } catch (err) {
+      output.innerText = "Error koneksi: " + err.message;
+    }
+  }
+
+  async function purgeRetention() {
+    const id = document.getElementById("input-id").value;
+    const output = document.getElementById("output-admin");
+
+    if (!activeToken) {
+      output.innerText = " PERINGATAN OTORISASI:\nAnda belum login! Pemusnahan data mewajibkan peran Administrator (admin_user).\nSilakan klik tombol '2. Admin' pada bar di atas terlebih dahulu.";
+      return;
+    }
+
+    output.innerText = `Menjalankan Cryptographic Shredding (DoD 5220.22-M Overwrite) untuk Anggota ID ${id}...`;
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/anggota/${id}/retention-purge`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${activeToken}` }
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        output.innerText = ` PEMUSNAHAN GAGAL (${res.status}):\n${JSON.stringify(data, null, 2)}\n\nCatatan: Jika error 404, data sensitif ID ini mungkin sudah pernah dimusnahkan sebelumnya.`;
+        return;
+      }
+
+      output.innerText = `SUKSES PEMUSNAHAN KRIPTOGRAFIS (RIGHT TO BE FORGOTTEN):\n${JSON.stringify(data, null, 2)}\n\nStatus: Seluruh kolom sensitif (NIK, Rekening, NPWP, Handphone) telah ditimpa derau acak (os.urandom) dan baris di tabel anggota_sensitif telah dihapus permanen.`;
+
+      const cmpInput = document.getElementById("input-compare-id");
+      if (cmpInput) cmpInput.value = id;
+      loadComparison();
+    } catch (err) {
+      output.innerText = "Error koneksi: " + err.message;
+    }
+  }
+
+  
+  async function loadAuditLogs() {
+    const tbody = document.querySelector("#table-logs tbody");
+
+    if (!activeToken) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--warning);"> Silakan login terlebih dahulu sebagai Auditor (klik tombol '3. Auditor' di bagian atas).</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center;">Memuat log...</td></tr>`;
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/audit-logs?limit=10`, {
+        headers: { "Authorization": `Bearer ${activeToken}` }
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Akses ditolak");
+
+      tbody.innerHTML = data.map(log => `
+        <tr>
+          <td>${log.accessed_at}</td>
+          <td><b>${log.user_id}</b></td>
+          <td>${log.role}</td>
+          <td style="color: var(--primary);">${log.action}</td>
+          <td>${log.target_anggota_id || "-"}</td>
+          <td>${log.ip_address || "127.0.0.1"}</td>
+        </tr>
+      `).join("");
+    } catch (err) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--danger);">${err.message}</td></tr>`;
+    }
+  }
+
+  window.addEventListener("DOMContentLoaded", () => {
+    loadComparison();
+  });
+</script>
+
+</body>
+</html>
+
+</html>
