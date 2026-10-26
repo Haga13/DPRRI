@@ -1,0 +1,21 @@
+# Kredensial & Konfigurasi Rahasia
+.env
+*.env
+
+# Master Keyring KMS
+kms/keyring.json
+
+# Berkas Cadangan Terenkripsi & Checksum
+backups/*.enc
+backups/*.sha256
+
+# Cache Python & Lingkungan Virtual
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.log
+
+.vscode
+
+tests/__pycache__
