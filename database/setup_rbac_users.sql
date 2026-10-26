@@ -33,6 +33,7 @@ GRANT SELECT, INSERT, UPDATE ON `dpr_pdp_db`.`anggota` TO 'app_user'@'%';
 GRANT SELECT, INSERT, UPDATE ON `dpr_pdp_db`.`anggota_sensitif` TO 'app_user'@'%';
 GRANT INSERT, SELECT ON `dpr_pdp_db`.`audit_log` TO 'app_user'@'%';
 GRANT SELECT, INSERT, UPDATE, DELETE ON `dpr_pdp_db`.`revoked_tokens` TO 'app_user'@'%';
+GRANT SELECT ON `dpr_pdp_db`.`users` TO 'app_user'@'%';
 
 GRANT SELECT ON `dpr_pdp_db`.`v_analyst_anggota` TO 'analyst_user'@'%';
 
