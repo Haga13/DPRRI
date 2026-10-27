@@ -373,7 +373,79 @@ sudo certbot --nginx -d bloodyz.web.id
 # 3. Izinkan HTTPS di server
 sudo ufw allow 443/tcp
 sudo ufw allow 'Nginx Full'
-----
+
+# 4. Perbarui Konfigurasi nginx
+sudo tee /etc/nginx/sites-available/dpr_pdp << 'EOF'
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name bloodyz.web.id _;
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl default_server;
+    listen [::]:443 ssl default_server;
+    server_name bloodyz.web.id _;
+
+    root /var/www/dpr_frontend;
+    index index.html;
+
+    ssl_certificate /etc/letsencrypt/live/bloodyz.web.id/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/bloodyz.web.id/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
+
+    client_body_buffer_size 128k;
+    client_max_body_size 10M;
+    client_header_buffer_size 1k;
+    large_client_header_buffers 4 4k;
+    keepalive_timeout 30;
+
+    if ($request_method !~ ^(GET|POST|DELETE|OPTIONS|HEAD|PUT)$) {
+        return 405;
+    }
+
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header X-Frame-Options "DENY" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Content-Security-Policy "default-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self';" always;
+
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /demo {
+        try_files /index.html =404;
+    }
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Anti-Cache Headers
+        add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0" always;
+        add_header Pragma "no-cache" always;
+        add_header Expires "0" always;
+    }
+}
+EOF
+
+# Validasi & reload Nginx
+sudo nginx -t && sudo systemctl reload nginx
 ```
 
 ### TAHAP 9: Isolasi Auto-Backup & Disaster Recovery (`dpr_backup`)
