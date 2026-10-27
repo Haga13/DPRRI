@@ -1,17 +1,12 @@
-# 🛡️ PANDUAN DEPLOYMENT PRODUKSI DPR RI PDP SECURE DATA ECOSYSTEM
-### *Zero-Error Step-by-Step Runbook (Ubuntu 22.04 / 24.04 LTS)*
+# PANDUAN DEPLOYMENT
 
-Dokumen ini adalah panduan deployment resmi dari awal (*fresh install*) ke server VPS produksi. Seluruh konfigurasi telah disesuaikan agar **langsung sukses tanpa error**, mengimplementasikan arsitektur **4-Tier Linux Privilege Separation**, serta memenuhi seluruh mandat teknis **UU PDP No. 27 Tahun 2022**.
-
----
-
-## 🏛️ Arsitektur Keamanan 4-Tier Privilege Separation
+## Arsitektur Keamanan 4-Tier Privilege Separation
 
 ```mermaid
 flowchart TD
-    Internet["🌐 Internet / Web Browser"] -->|Port 80 / HTTPS| Nginx["Nginx Web Server<br/>(User: www-data)<br/>/var/www/dpr_frontend"]
+    Internet["Internet / Web Browser"] -->|Port 80 / HTTPS| Nginx["Nginx Web Server<br/>(User: www-data)<br/>/var/www/dpr_frontend"]
     
-    subgraph Localhost ["🔒 Localhost Only (Internal Isolated Network)"]
+    subgraph Localhost ["Localhost Only (Internal Isolated Network)"]
         Nginx -->|Reverse Proxy /api/| Backend["FastAPI Backend Daemon<br/>(User: dpr_backend)<br/>Port 8000 (dpr-backend.service)"]
         Backend -->|Unwrap DEK via Socket/FS| KMS["Master Keyring KEK/DEK<br/>(User: dpr_kms)<br/>/home/dpr_kms/keyring.json (640)"]
         Backend -->|Role: app_user| MySQL[("MySQL Database<br/>(User: mysql)<br/>dpr_pdp_db")]
@@ -24,13 +19,16 @@ flowchart TD
 
 ---
 
-## 📋 DAFTAR LANGKAH DEPLOYMENT
+## DAFTAR LANGKAH DEPLOYMENT
 
 ### TAHAP 1: Persiapan Server & User Terisolasi (Login: `ubuntu` / Sudo)
 
 Jalankan perintah ini di VPS untuk mengupdate sistem, menginstal paket pendukung, dan membuat akun layanan terisolasi:
 
 ```bash
+#remote vps via ssh
+ssh host@ipvps
+
 # 1. Update OS dan instalasi dependensi dasar
 sudo apt update && sudo apt upgrade -y
 sudo apt install -y python3.12-venv python3-pip mysql-server nginx git curl
@@ -50,7 +48,7 @@ sudo adduser --disabled-password --gecos "" dpr_backup
 sudo systemctl enable --now mysql
 
 # 2. Setup user administrator MySQL 'haga' untuk localhost & 127.0.0.1
-sudo mysql -e "
+sudo mysql -e " (untuk usernama dan password sql bisa diganti sesuai kebutuhan)
 CREATE USER IF NOT EXISTS 'haga'@'localhost' IDENTIFIED BY 'haga@11002';
 CREATE USER IF NOT EXISTS 'haga'@'127.0.0.1' IDENTIFIED BY 'haga@11002';
 CREATE USER IF NOT EXISTS 'haga'@'%' IDENTIFIED BY 'haga@11002';
@@ -379,7 +377,6 @@ sudo su - dpr_backend -c "cd /home/dpr_backend/backend && source .venv/bin/activ
 ```
 
 Buka antarmuka web di browser laptop Anda:
-👉 `http://<IP_VPS_ANDA>` (atau `http://<IP_VPS_ANDA>/demo`)
+ `http://<IP_VPS_ANDA>` (atau `http://<IP_VPS_ANDA>/demo`)
 
 ---
-*Dokumen ini menjamin proses instalasi ulang atau migrasi ke server baru berlangsung cepat, deterministik, dan tanpa hambatan teknis.*
