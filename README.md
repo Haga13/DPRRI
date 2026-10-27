@@ -362,6 +362,15 @@ sudo systemctl reload nginx
 ---
 
 ```
+### Install SSL
+```bash
+# 1. Install Certbot untuk Nginx
+sudo apt update && sudo apt install certbot python3-certbot-nginx -y
+
+# 2. Pasang sertifikat SSL otomatis untuk domain Anda
+sudo certbot --nginx -d bloodyz.web.id
+----
+```
 
 ### TAHAP 9: Isolasi Auto-Backup & Disaster Recovery (`dpr_backup`)
 
