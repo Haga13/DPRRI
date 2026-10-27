@@ -2,22 +2,7 @@
 
 ## Arsitektur Keamanan 4-Tier Privilege Separation
 
-```mermaid
-flowchart TD
-    Internet["Internet / Web Browser"] -->|Port 80 / HTTPS| Nginx["Nginx Web Server<br/>(User: www-data)<br/>/var/www/dpr_frontend"]
-    
-    subgraph Localhost ["Localhost Only (Internal Isolated Network)"]
-        Nginx -->|Reverse Proxy /api/| Backend["FastAPI Backend Daemon<br/>(User: dpr_backend)<br/>Port 8000 (dpr-backend.service)"]
-        Backend -->|Unwrap DEK via Socket/FS| KMS["Master Keyring KEK/DEK<br/>(User: dpr_kms)<br/>/home/dpr_kms/keyring.json (640)"]
-        Backend -->|Role: app_user| MySQL[("MySQL Database<br/>(User: mysql)<br/>dpr_pdp_db")]
-        
-        BackupDaemon["Automated Disaster Recovery<br/>(User: dpr_backup)<br/>Cron: 02.00 WIB (chmod 700)"]
-        BackupDaemon -->|Role: backup_user (Read-Only)| MySQL
-        BackupDaemon -->|AES-256-GCM Backup| BackupDir["/home/dpr_backup/backups/"]
-    end
-```
 
----
 
 ## DAFTAR LANGKAH DEPLOYMENT
 
