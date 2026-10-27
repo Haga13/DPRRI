@@ -369,6 +369,10 @@ sudo apt update && sudo apt install certbot python3-certbot-nginx -y
 
 # 2. Pasang sertifikat SSL otomatis untuk domain Anda
 sudo certbot --nginx -d bloodyz.web.id
+
+# 3. Izinkan HTTPS di server
+sudo ufw allow 443/tcp
+sudo ufw allow 'Nginx Full'
 ----
 ```
 
