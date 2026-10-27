@@ -296,7 +296,72 @@ sudo systemctl restart nginx
 sudo systemctl enable nginx
 ```
 
+### Nginx Security Hardening
+```bash
+# 1. Matikan pembocoran versi Nginx secara global
+sudo sed -i 's/# server_tokens off;/server_tokens off;/g' /etc/nginx/nginx.conf
+sudo sed -i 's/server_tokens on;/server_tokens off;/g' /etc/nginx/nginx.conf
+
+# 2. Perbarui konfigurasi dpr_pdp dengan batasan buffer & HTTP method whitelist
+sudo bash -c 'cat << "EOF" > /etc/nginx/sites-available/dpr_pdp
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name _;
+
+    root /var/www/dpr_frontend;
+    index index.html;
+
+    client_body_buffer_size 128k;
+    client_max_body_size 10M;
+    client_header_buffer_size 1k;
+    large_client_header_buffers 4 4k;
+    keepalive_timeout 30;
+
+    if ($request_method !~ ^(GET|POST|DELETE|OPTIONS|HEAD|PUT)$) {
+        return 405;
+    }
+
+    add_header X-Frame-Options "DENY" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Content-Security-Policy "default-src \x27self\x27 \x27unsafe-inline\x27; font-src \x27self\x27 https://fonts.gstatic.com; style-src \x27self\x27 \x27unsafe-inline\x27 https://fonts.googleapis.com;" always;
+
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /demo {
+        try_files /index.html =404;
+    }
+
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Anti-Cache Headers
+        add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0" always;
+        add_header Pragma "no-cache" always;
+        add_header Expires "0" always;
+    }
+}
+EOF'
+
+# 3. Validasi & reload Nginx
+sudo nginx -t
+sudo systemctl reload nginx
 ---
+
+```
 
 ### TAHAP 9: Isolasi Auto-Backup & Disaster Recovery (`dpr_backup`)
 
@@ -346,7 +411,7 @@ Jalankan Master Security Test Runner:
 sudo su - dpr_backend -c "cd /home/dpr_backend/backend && source .venv/bin/activate && python3 tests/run_all_security_tests.py"
 ```
 
-**Ekspektasi Output (100% LULUS):**
+**Ekspektasi Output **
 ```text
 ======================================================================
                     RINGKASAN HASIL EVALUASI
