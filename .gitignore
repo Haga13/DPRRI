@@ -8,6 +8,8 @@ kms/keyring.json
 # Berkas Cadangan Terenkripsi & Checksum
 backups/*.enc
 backups/*.sha256
+*.sql
+!database/*.sql
 
 # Cache Python & Lingkungan Virtual
 __pycache__/
