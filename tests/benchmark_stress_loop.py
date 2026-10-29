@@ -41,7 +41,7 @@ DB_USER = os.getenv("DB_ROOT_USER", "haga")
 DB_PASS = os.getenv("DB_ROOT_PASS", "haga@11002")
 
 # Daftar Tahap Pengujian Beban Bertingkat
-DEFAULT_STAGES = [1000, 2000, 3000, 5000, 7500, 10000]
+DEFAULT_STAGES = [1000, 2000, 3000, 5000, 7500, 10000, 20000, 30000, 40000, 50000]
 LATENCY_CUTOFF_LIMIT_MS = 100.0  # Batas ambang auto cut-off (100 ms)
 
 
