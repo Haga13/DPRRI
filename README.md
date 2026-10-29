@@ -485,6 +485,10 @@ sudo su - dpr_backup -c "cd /home/dpr_backup && source .venv/bin/activate && pyt
 
 # 7. Daftarkan cron job otomatis setiap pukul 02:00 WIB
 sudo su - dpr_backup -c '(crontab -l 2>/dev/null; echo "0 2 * * * cd /home/dpr_backup && /home/dpr_backup/.venv/bin/python3 secure_backup.py >> /home/dpr_backup/backups/backup.log 2>&1") | crontab -'
+
+# 8. Uji Simulasi Pemulihan Bencana (Disaster Recovery / Restore Data Terenkripsi)
+# Skrip ini memverifikasi Checksum SHA-256 arsip cadangan terbaru, mendekripsi AES-256-GCM, dan memulihkan database secara utuh:
+sudo su - dpr_backend -c "cd /home/dpr_backend/backend && source .venv/bin/activate && python3 backup_recovery/secure_restore.py"
 ```
 
 ---
@@ -511,7 +515,27 @@ sudo su - dpr_backend -c "cd /home/dpr_backend/backend && source .venv/bin/activ
 ======================================================================
 ```
 
-Buka antarmuka web di browser laptop Anda:
- `http://<IP_VPS_ANDA>` (atau `http://<IP_VPS_ANDA>/demo`)
+---
+
+### TAHAP 11: Pengujian Kinerja Empiris & Stress Test (Mandat Rubrik No. 5)
+
+Jalankan modul tolok ukur kinerja dan simulasi serangan siber:
+
+```bash
+# 1. Tolok Ukur Kinerja Komparatif (Sebelum vs Sesudah Proteksi pada 7 Metrik Kunci):
+sudo su - dpr_backend -c "cd /home/dpr_backend/backend && source .venv/bin/activate && python3 tests/benchmark_performance.py"
+
+# 2. Pengujian Beban Berjenjang (Stress Loop) dengan Circuit Breaker 100 ms:
+sudo su - dpr_backend -c "cd /home/dpr_backend/backend && source .venv/bin/activate && python3 tests/benchmark_stress_loop.py --stages 1000 2000 3000 5000"
+
+# 3. Simulasi 4 Vektor Serangan Siber (SQL Injection, Replay Attack, Rate Limit, Privilege Escalation):
+sudo su - dpr_backend -c "cd /home/dpr_backend/backend && source .venv/bin/activate && python3 demo_serangan.py"
+```
+
+---
+
+### Akses Antarmuka Web Dashboard Produksi:
+* **Domain Produksi HTTPS :** `https://bloodyz.web.id` (TLS 1.3 & Hardened Headers)
+* **IP Server Langsung   :** `http://<IP_VPS_ANDA>` (atau `http://<IP_VPS_ANDA>/demo`)
 
 ---
